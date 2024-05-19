@@ -1,5 +1,5 @@
 <?php
-require 'includes/config.php';
+require 'config.php';
 
 function sanitizeInput($data) {
     return htmlspecialchars(stripslashes(trim($data)));
