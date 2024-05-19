@@ -1,5 +1,5 @@
 <?php
-require 'includes/config.php';
+require 'config.php';
 
 function sanitizeInput($data) {
     return htmlspecialchars(stripslashes(trim($data)));
@@ -7,16 +7,17 @@ function sanitizeInput($data) {
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $username = sanitizeInput($_POST['username']);
+    $email = sanitizeInput($_POST['email']);
     $password = sanitizeInput($_POST['password']);
     
-    if (empty($username) || empty($password)) {
+    if (empty($username) || empty($email) || empty($password)) {
         echo "Username and password are required.";
         exit();
     }
     
     $hashed_password = password_hash($password, PASSWORD_BCRYPT);
     
-    $stmt = $conn->prepare("INSERT INTO users (username, password) VALUES (?, ?)");
+    $stmt = $conn->prepare("INSERT INTO users (username, email, password) VALUES (?,  ?, ?)");
     $stmt->bind_param("ss", $username, $hashed_password);
     
     if ($stmt->execute()) {
@@ -44,6 +45,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <form action="signup.php" method="post">
         <label for="username">Username:</label>
         <input type="text" name="username" required>
+        <br>
+        <label for="email">Email:</label>
+        <input type="text" name="email" required>
         <br>
         <label for="password">Password:</label>
         <input type="password" name="password" required>
