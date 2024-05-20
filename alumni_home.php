@@ -11,12 +11,11 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] == 'admin') {
 <head>
     <meta charset="UTF-8">
     <title>Alumni Home</title>
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 <div class="container">
     <header>
-        <h1>Welcome, <?= $_SESSION['username'] ?></h1>
         <nav>
             <a href="post_job.php">Post a Job</a>
             <a href="view_jobs.php">View Jobs</a>
@@ -24,5 +23,6 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] == 'admin') {
         </nav>
     </header>
 </div>
+<h1>Welcome, <?= $_SESSION['username'] ?></h1>
 </body>
 </html>

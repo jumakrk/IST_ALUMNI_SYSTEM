@@ -1,33 +1,27 @@
 <?php
-require 'config.php';
-
-function sanitizeInput($data) {
-    return htmlspecialchars(stripslashes(trim($data)));
-}
+require 'database_connection.php';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $username = sanitizeInput($_POST['username']);
-    $email = sanitizeInput($_POST['email']);
-    $password = sanitizeInput($_POST['password']);
+    $username = $_POST['username'];
+    $email = $_POST['email'];
+    $password = $_POST['password'];
     
     if (empty($username) || empty($email) || empty($password)) {
-        echo "Username and password are required.";
+        echo "Username, email and password are required.";
         exit();
     }
     
     $hashed_password = password_hash($password, PASSWORD_BCRYPT);
     
-    $stmt = $conn->prepare("INSERT INTO users (username, email, password) VALUES (?,  ?, ?)");
-    $stmt->bind_param("ss", $username, $hashed_password);
+    $sql = "INSERT INTO users (username, email, password) VALUES ('$username', '$email', '$hashed_password')";
     
-    if ($stmt->execute()) {
+    if ($conn->query($sql) === TRUE) {
         header("Location: login.php");
         exit();
     } else {
-        echo "Error: " . $stmt->error;
+        echo "Error: " . $sql . "<br>" . $conn->error;
     }
     
-    $stmt->close();
     $conn->close();
 }
 ?>
@@ -37,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <head>
     <meta charset="UTF-8">
     <title>Sign Up</title>
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 <div class="container">
@@ -54,6 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <br>
         <input type="submit" value="Sign Up">
     </form>
+    <p>Already have an account? <a href="login.php">Login</a></p>
 </div>
 </body>
 </html>

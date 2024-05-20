@@ -1,48 +1,36 @@
 <?php
-require 'config.php';
+require 'database_connection.php';
 
-function sanitizeInput($data) {
-    return htmlspecialchars(stripslashes(trim($data)));
-}
+session_start();
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $username = sanitizeInput($_POST['username']);
-    $password = sanitizeInput($_POST['password']);
+    $username = $_POST['username'];
+    $password = $_POST['password'];
     
-    if (empty($username) || empty($password)) {
-        echo "Username and password are required.";
-        exit();
-    }
+    $sql = "SELECT id, username, password, role FROM users WHERE username='$username'";
+    $result = $conn->query($sql);
     
-    $stmt = $conn->prepare("SELECT id, username, password, role FROM users WHERE username = ?");
-    $stmt->bind_param("s", $username);
-    $stmt->execute();
-    $stmt->store_result();
-    
-    if ($stmt->num_rows > 0) {
-        $stmt->bind_result($id, $username, $hashed_password, $role);
-        $stmt->fetch();
+    if ($result->num_rows > 0) {
+        $row = $result->fetch_assoc();
         
-        if (password_verify($password, $hashed_password)) {
-            session_start();
-            $_SESSION['user_id'] = $id;
-            $_SESSION['username'] = $username;
-            $_SESSION['role'] = $role;
+        if (password_verify($password, $row['password'])) {
+            $_SESSION['user_id'] = $row['id'];
+            $_SESSION['username'] = $row['username'];
+            $_SESSION['role'] = $row['role'];
             
-            if ($role == 'admin') {
+            if ($row['role'] == 'admin') {
                 header("Location: admin_home.php");
             } else {
                 header("Location: alumni_home.php");
             }
             exit();
         } else {
-            echo "Invalid password.";
+            echo "Invalid Credentials.";
         }
     } else {
-        echo "No user found with that username.";
+        echo "Invalid Credentials";
     }
     
-    $stmt->close();
     $conn->close();
 }
 ?>
@@ -52,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <head>
     <meta charset="UTF-8">
     <title>Login</title>
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 <div class="container">
@@ -66,6 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <br>
         <input type="submit" value="Login">
     </form>
+    <p>I don't have an account? <a href="signup.php">Sign Up</a></p>
 </div>
 </body>
 </html>
